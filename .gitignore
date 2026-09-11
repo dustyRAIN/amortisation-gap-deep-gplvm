@@ -23,3 +23,8 @@ results/*.backup.json
 
 # the report is a graded deliverable — kept local, not published
 report/
+
+# the deck is a graded deliverable — kept local, not published
+slides/
+scripts/build_slides.py
+scripts/make_slide_figures.py
