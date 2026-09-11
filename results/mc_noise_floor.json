@@ -1,0 +1,46 @@
+{
+  "rows": [
+    {
+      "depth": 1,
+      "steps": 300,
+      "paired_gap_noise_sd": 0.005149517396044854,
+      "single_elbo_noise_sd": 0.012962242694681856,
+      "gap_at_this_budget": 0.15584349632263184
+    },
+    {
+      "depth": 1,
+      "steps": 1000,
+      "paired_gap_noise_sd": 0.006929218961304947,
+      "single_elbo_noise_sd": 0.01320090864994718,
+      "gap_at_this_budget": 0.4038231372833252
+    },
+    {
+      "depth": 1,
+      "steps": 16000,
+      "paired_gap_noise_sd": 0.0055110482607263495,
+      "single_elbo_noise_sd": 0.011856675461089441,
+      "gap_at_this_budget": 0.01523292064666748
+    },
+    {
+      "depth": 2,
+      "steps": 300,
+      "paired_gap_noise_sd": 0.006806256354459597,
+      "single_elbo_noise_sd": 0.012213448121524901,
+      "gap_at_this_budget": 0.11965155601501465
+    },
+    {
+      "depth": 2,
+      "steps": 1000,
+      "paired_gap_noise_sd": 0.005050169802037997,
+      "single_elbo_noise_sd": 0.007880826216476745,
+      "gap_at_this_budget": 0.5238512754440308
+    },
+    {
+      "depth": 2,
+      "steps": 16000,
+      "paired_gap_noise_sd": 0.008843539684290832,
+      "single_elbo_noise_sd": 0.010567285588080745,
+      "gap_at_this_budget": 0.07764178514480591
+    }
+  ]
+}
