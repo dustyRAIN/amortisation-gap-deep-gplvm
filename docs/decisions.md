@@ -145,7 +145,9 @@ optimisation slack. That is the floor the amortised gap must clear -- and it is 
 larger than the Monte Carlo noise floor, so quoting only the MC floor understates the
 uncertainty badly.
 
-**Why this entry exists.** `scripts/verify_model.py` measured it. On synthetic data at
+**Why this entry exists.** `scripts/verify_model.py` measured it, and the run that
+failed is kept as `results/slack_study_UNFIXED_lr.json` so the failure case is
+reproducible rather than merely described. On synthetic data at
 1,200 steps: amortised gap **+0.068**, free-form control **+0.062** nats/point. About
 90% of the apparent "amortisation gap" was residual optimisation slack. At 300 steps the
 control was **+0.77 (depth 1)** and **+2.95 (depth 2)** -- an under-trained model reports

@@ -86,6 +86,7 @@ Lawrence's own lab repository.)
 | `scripts/verify_model.py` | 55 automated correctness and degeneracy checks |
 | `scripts/verify_documents.py` | cross-checks every number in the report/deck/script against `results/` |
 | `results/` | every run behind every number in the report |
+| `results/slack_study_UNFIXED_lr.json` | the failure case: the run where the encoder shared a learning rate, failed the depth-1 gate, and produced a gap that grew with depth |
 | `docs/decisions.md` | decision log, including the ones that turned out wrong |
 | `report/` | LaTeX source and compiled PDF |
 | `slides/` | Presentation II deck and speaking script |
