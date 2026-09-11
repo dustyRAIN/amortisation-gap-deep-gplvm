@@ -10,11 +10,14 @@ Usage:  python scripts/verify_documents.py
 import json, os, re, sys
 
 R = "results"
-DOCS = {
-    "report":  ["report/sections/%s" % f for f in os.listdir("report/sections")],
-    "deck":    ["scripts/build_slides.py"],
-    "script":  ["slides/CSE756_Presentation_II_Script.md"],
-}
+# The report is a graded deliverable and is kept out of this repository, so its
+# checks are skipped when it is absent. Everything else still runs on a fresh clone.
+DOCS = {"deck": ["scripts/build_slides.py"],
+        "script": ["slides/CSE756_Presentation_II_Script.md"]}
+if os.path.isdir("report/sections"):
+    DOCS["report"] = ["report/sections/%s" % f for f in os.listdir("report/sections")]
+else:
+    print("note: report/ not present — skipping its checks (see README)")
 def _norm(t):
     """Normalise so formatting differences are not mistaken for content errors:
     LaTeX thin-space digits (1{,}200), Unicode minus/dashes, and line wrapping."""
@@ -44,7 +47,7 @@ results, checks = [], []
 def claim(label, value, fmt, where, spoken=None):
     """Assert `value` (formatted) appears in each document named in `where`."""
     s = fmt.format(value)
-    for doc in where:
+    for doc in [d for d in where if d in TEXT]:
         hay = TEXT[doc]
         ok = s in hay
         if not ok and doc == "script" and spoken:
@@ -132,7 +135,7 @@ claim("held-out SE multiple", ho_drop / ho_se, "{:.1f}", ["report", "deck", "scr
 for lbl, val, ok_names in [("62x collapse", ratio, ["report", "deck", "script"]),
                            ("1200x train-vs-test", tr_ratio, ["report", "deck", "script"])]:
     n = f"{val:.0f}"
-    for doc in ok_names:
+    for doc in [d for d in ok_names if d in TEXT]:
         hay = TEXT[doc]
         found = (n in hay) or (f"{int(round(val,-2)):,}" in hay) or (f"{int(round(val,-2))}" in hay)
         if doc == "script" and not found:
@@ -204,7 +207,7 @@ else:
     print(f"\n  MC noise floor (paired): {min(sds):.4f} - {max(sds):.4f} over "
           f"{len(nf)} conditions")
     lo, hi = min(sds), max(sds)
-    for doc in ("report", "deck", "script"):
+    for doc in [d for d in ("report", "deck", "script") if d in TEXT]:
         hay = TEXT[doc]
         ok = (f"{lo:.3f}" in hay and f"{hi:.3f}" in hay) or \
              ("zero-zero-five" in hay and "zero-zero-nine" in hay)
@@ -220,7 +223,7 @@ def active(r):
 a1=[active(r) for r in frey if r["depth"]==1]; a2=[active(r) for r in frey if r["depth"]==2]
 print(f"\n  posterior spread: d1 {min(sp1):.2f}-{max(sp1):.2f}  d2 {min(sp2):.2f}-{max(sp2):.2f}")
 print(f"  active latent dims: d1 {min(a1)}-{max(a1)}/5   d2 {min(a2)}-{max(a2)}/5")
-for doc in ("deck","script"):
+for doc in [d for d in ("deck","script") if d in TEXT]:
     hay=TEXT[doc]
     if doc == "deck":            # the slide carries the numbers
         ok = "0.09" in hay and "0.71" in hay and "0.96" in hay
@@ -239,7 +242,7 @@ syn_below = sum(1 for d in (1,2) for r in syn
                 and abs(r["gap"]) < floor)
 frey_below = sum(1 for r in frey if "gap" in r and abs(r["gap"]) <= r["gap_noise_sd"])
 print(f"  per-seed gaps below the MC floor: synthetic {syn_below}/16, frey {frey_below}/8")
-for doc in ("report","deck","script"):
+for doc in [d for d in ("report","deck","script") if d in TEXT]:
     over = ("every gap clears" in TEXT[doc].lower()) and syn_below > 0
     results.append((f"{doc}: no overstated 'every gap clears the floor' claim", not over,
                     f"{syn_below}/16 synthetic seeds are below the floor"))
@@ -254,7 +257,7 @@ results.append(("stated Frey cell time matches the median, not a resume-inflated
 # ---------------- slide 9 and slide 13 must tell the same story ----------------
 # The held-out result is explained by latent pruning (r=+0.95). If any document still
 # explains it by "overfitting", slide 13's open question contradicts slide 9.
-for doc in ("deck", "script"):
+for doc in [d for d in ("deck", "script") if d in TEXT]:
     hay = TEXT[doc].lower()
     explains_by_pruning = "active" in hay and "0.95" in hay.replace("zero point nine-five", "0.95")
     stale_overfit = "gap follows overfitting" in hay or "gap appears to track overfitting" in hay
@@ -265,17 +268,18 @@ for doc in ("deck", "script"):
 # All experiment files are complete, so no document should say work is in progress.
 STALE = ["running now", "finishing now", "in progress", "is still running",
          "cells are finishing", "currently running"]
-for doc in ("report", "deck", "script"):
+for doc in [d for d in ("report", "deck", "script") if d in TEXT]:
     hits = [w for w in STALE if w in TEXT[doc].lower()]
     results.append((f"{doc}: no stale 'work in progress' claims", not hits, f"{hits}"))
 
 # ---------------- report: structural requirements ----------------
-rep = TEXT["report"]
+rep = TEXT.get("report", "")
 req = ["Abstract", "Introduction", "Background and Related Work", "Probabilistic Model",
        "Methodology", "Experimental Design", "Results", "Discussion", "Conclusion",
        "Team Contribution Statement"]
 missing = [s for s in req if s.lower() not in rep.lower()]
-results.append(("report has all required sections", not missing, f"missing: {missing}"))
+if "report" in TEXT:
+    results.append(("report has all required sections", not missing, f"missing: {missing}"))
 pend = re.findall(r"\\pending\{([^}]*)\}", rep)
 awaiting_user = [x for x in pend if "name" in x.lower()]
 stale = [x for x in pend if x not in awaiting_user]
