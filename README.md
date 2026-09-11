@@ -43,7 +43,7 @@ it collapses **62-fold** by depth 2 — 8.5 standard errors. That collapse track
 pruning: depth 1 keeps all 5 latent dimensions active, depth 2 keeps 1–2, and the
 correlation between active dimensions and the held-out gap is **+0.95**.
 
-Full write-up: [`report/main.pdf`](report/main.pdf). Evidence log: [`docs/findings.md`](docs/findings.md).
+Evidence log, with every number and its caveats: [`docs/findings.md`](docs/findings.md).
 
 ## Why we wrote the model ourselves
 
@@ -88,7 +88,6 @@ Lawrence's own lab repository.)
 | `results/` | every run behind every number in the report |
 | `results/slack_study_UNFIXED_lr.json` | the failure case: the run where the encoder shared a learning rate, failed the depth-1 gate, and produced a gap that grew with depth |
 | `docs/decisions.md` | decision log, including the ones that turned out wrong |
-| `report/` | LaTeX source and compiled PDF |
 | `slides/` | Presentation II deck and speaking script |
 
 Runs are checkpointed and resumable at cell and within-cell granularity, including the

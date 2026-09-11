@@ -20,3 +20,6 @@ report/*.out
 # in-flight experiment output; committed when the run completes
 results/dense_ablation.json
 results/*.backup.json
+
+# the report is a graded deliverable — kept local, not published
+report/
