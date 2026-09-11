@@ -44,7 +44,8 @@ pruning: depth 1 keeps all 5 latent dimensions active, depth 2 keeps 1–2, and 
 correlation between active dimensions and the held-out gap is **+0.95**.
 
 Evidence log, with every number and its caveats: [`docs/findings.md`](docs/findings.md).
-The write-up itself is a graded coursework deliverable and is not published here.
+The write-up and the presentation deck are graded coursework deliverables and are
+not published here; the code, the runs behind every number, and the decision log are.
 
 ## Why we wrote the model ourselves
 
@@ -85,11 +86,10 @@ Lawrence's own lab repository.)
 | `src/train.py` | training, the gap protocol, the negative control, held-out scoring |
 | `scripts/run_experiment.py` | the depth × scheme grid |
 | `scripts/verify_model.py` | 55 automated correctness and degeneracy checks |
-| `scripts/verify_documents.py` | recomputes ground truth from `results/` and cross-checks every number quoted in the deck and script |
+| `scripts/verify_documents.py` | recomputes every headline number from `results/` — run it to check our arithmetic |
 | `results/` | every run behind every reported number |
 | `results/slack_study_UNFIXED_lr.json` | the failure case: the run where the encoder shared a learning rate, failed the depth-1 gate, and produced a gap that grew with depth |
 | `docs/decisions.md` | decision log, including the ones that turned out wrong |
-| `slides/` | Presentation II deck and speaking script |
 
 Runs are checkpointed and resumable at cell and within-cell granularity, including the
 RNG state — so an interrupted run resumes on the same sample stream and the paired

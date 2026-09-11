@@ -10,14 +10,27 @@ Usage:  python scripts/verify_documents.py
 import json, os, re, sys
 
 R = "results"
-# The report is a graded deliverable and is kept out of this repository, so its
-# checks are skipped when it is absent. Everything else still runs on a fresh clone.
-DOCS = {"deck": ["scripts/build_slides.py"],
-        "script": ["slides/CSE756_Presentation_II_Script.md"]}
-if os.path.isdir("report/sections"):
-    DOCS["report"] = ["report/sections/%s" % f for f in os.listdir("report/sections")]
-else:
-    print("note: report/ not present — skipping its checks (see README)")
+# The report and the deck are graded deliverables and are kept out of this
+# repository. This script therefore has two jobs, and the first always works:
+#
+#   1. recompute the headline numbers from results/ (always)
+#   2. cross-check them against whichever documents are present (when they are)
+#
+# On a fresh clone only (1) runs, which is still the useful part for a reader
+# checking our arithmetic.
+_CANDIDATES = {
+    "report": lambda: ["report/sections/%s" % f for f in sorted(os.listdir("report/sections"))]
+                      if os.path.isdir("report/sections") else [],
+    "deck":   lambda: ["scripts/build_slides.py"] if os.path.exists("scripts/build_slides.py") else [],
+    "script": lambda: ["slides/CSE756_Presentation_II_Script.md"]
+                      if os.path.exists("slides/CSE756_Presentation_II_Script.md") else [],
+}
+DOCS = {k: v() for k, v in _CANDIDATES.items()}
+DOCS = {k: v for k, v in DOCS.items() if v}
+absent = [k for k in _CANDIDATES if k not in DOCS]
+if absent:
+    print(f"note: {', '.join(absent)} not present in this repository — "
+          f"recomputing ground truth only, cross-checks skipped (see README)")
 def _norm(t):
     """Normalise so formatting differences are not mistaken for content errors:
     LaTeX thin-space digits (1{,}200), Unicode minus/dashes, and line wrapping."""
@@ -230,10 +243,10 @@ for doc in [d for d in ("deck","script") if d in TEXT]:
     else:                         # the script describes them, it does not read them aloud
         ok = "back to the prior" in hay.lower() and "five latent" in hay.lower()
     checks.append(("posterior-spread claim matches d1/d2", doc, "d1 0.09-0.11, d2 0.71-0.96", ok))
-results.append(("no document claims spread stays in 0.10-0.65",
-                "0.10–0.65" not in TEXT["deck"] and "0.10-0.65" not in TEXT["deck"], ""))
-results.append(("Frey depth preference stated as 8 runs, not 4",
-                "all four runs" not in TEXT["deck"].lower(), ""))
+if "deck" in TEXT: results.append(("no document claims spread stays in 0.10-0.65",
+                "0.10–0.65" not in TEXT.get("deck", "") and "0.10-0.65" not in TEXT.get("deck", ""), ""))
+if "deck" in TEXT: results.append(("Frey depth preference stated as 8 runs, not 4",
+                "all four runs" not in TEXT.get("deck", "").lower(), ""))
 
 # ---------------- absolute claims that the data does not support --------------
 floor = max(r["paired_gap_noise_sd"] for r in nf) if nf else 0.0
@@ -250,9 +263,10 @@ results.append(("frey gaps all clear their own recorded floor", frey_below == 0,
                 f"{frey_below}/8 below"))
 w = sorted(r["wall_clock_s"]/60 for r in frey)
 med = w[len(w)//2]
-results.append(("stated Frey cell time matches the median, not a resume-inflated mean",
-                "30 min median" in TEXT["deck"] or f"{med:.0f} min" in TEXT["deck"],
-                f"median {med:.0f} min, mean {sum(w)/len(w):.0f}"))
+if "deck" in TEXT:
+    results.append(("stated Frey cell time matches the median, not a resume-inflated mean",
+                    "30 min median" in TEXT["deck"] or f"{med:.0f} min" in TEXT["deck"],
+                    f"median {med:.0f} min, mean {sum(w)/len(w):.0f}"))
 
 # ---------------- slide 9 and slide 13 must tell the same story ----------------
 # The held-out result is explained by latent pruning (r=+0.95). If any document still
